@@ -1,4 +1,4 @@
-import json, re, textwrap, os
+import os, json, re, textwrap
 import streamlit as st
 import google.generativeai as genai
 
@@ -6,10 +6,17 @@ import google.generativeai as genai
 st.set_page_config(page_title="QA Coaching Agent", page_icon="✅", layout="centered")
 MODEL_NAME = "gemini-1.5-flash"
 
-# Expect the API key in Streamlit Secrets (Settings → Secrets)
-GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
+# Read key from Streamlit Secrets (preferred) OR environment variable (fallback)
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY", "")
+
 if not GEMINI_API_KEY:
-    st.error("Missing GEMINI_API_KEY in Streamlit Secrets.\nGo to Settings → Secrets and add it.")
+    st.error(
+        "Missing GEMINI_API_KEY.\n\n"
+        "Locally: create `.streamlit/secrets.toml` with:\n"
+        'GEMINI_API_KEY="YOUR_KEY_HERE"\n\n'
+        "OR set an env var and restart: export GEMINI_API_KEY=YOUR_KEY_HERE\n\n"
+        "On Streamlit Cloud: App ▸ Settings ▸ Secrets."
+    )
     st.stop()
 
 genai.configure(api_key=GEMINI_API_KEY)
